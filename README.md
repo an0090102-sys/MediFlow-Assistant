@@ -1,7 +1,7 @@
 # 🚑 MediFlow Assistant
 AI-powered Medical Report Analyzer & Q&A Assistant
 
-MediFlow Assistant is a medical intelligence application that helps users upload clinical reports, extract key insights, and ask follow-up questions using both retrieval and graph-based reasoning. The current version combines Gemini-based extraction, PII redaction, Neo4j knowledge graph storage, and response generation for richer medical assistance.
+MediFlow Assistant is a medical intelligence application that helps users upload clinical reports, extract key insights, and ask follow-up questions using a combination of semantic retrieval, keyword retrieval, and graph-based reasoning. The current version combines Gemini-based extraction, PII redaction, Pinecone vector search, TF-IDF keyword search, Reciprocal Rank Fusion (RRF), and Neo4j knowledge graph context to deliver more relevant medical answers.
 
 ---
 
@@ -12,9 +12,15 @@ MediFlow Assistant is a medical intelligence application that helps users upload
 - Extract text and structured insights using Gemini
 - Detect key clinical findings, biomarkers, and treatment details
 
-### ➤ RAG + Graph-Based Question Answering
+### ➤ Hybrid Retrieval for Better RAG
+- Use Pinecone vector search for semantic similarity
+- Add keyword-based retrieval with TF-IDF over the full indexed document set
+- Filter out common filler words such as “and”, “the”, and “is” during keyword scoring
+- Fuse vector and keyword rankings with Reciprocal Rank Fusion (RRF) to surface the most relevant passages
+
+### ➤ Graph-Based Question Answering
 - Ask questions about uploaded reports
-- Combine Pinecone vector retrieval with Neo4j relationship context
+- Combine retrieved evidence with Neo4j relationship context
 - Improve answers with entity and relationship-aware reasoning
 
 ### ➤ Secure Medical Workflow
@@ -26,6 +32,31 @@ MediFlow Assistant is a medical intelligence application that helps users upload
 - Built with Next.js and the App Router
 - Uses streaming responses for interactive chat
 - Styled with Shadcn/ui and Tailwind CSS
+
+---
+
+## 🔎 Retrieval Workflow
+
+The retrieval pipeline now works in three stages:
+
+1. Semantic retrieval via Pinecone embeddings to find conceptually similar chunks
+2. Keyword retrieval using TF-IDF to match important medical terms such as “kidney”, “heart”, or “disease”
+3. Reciprocal Rank Fusion (RRF) to combine both rankings and return the strongest top-$k$ passages
+
+This helps the system stay accurate when the wording of a user question does not exactly match the report text.
+
+---
+
+## 🧪 Example
+
+If a user asks: “Does the patient have kidney and heart disease?”
+
+The system can retrieve relevant evidence by combining:
+- semantic similarity from vector search
+- exact keyword matches such as “kidney”, “heart”, and “disease” through TF-IDF
+- final ranking through Reciprocal Rank Fusion (RRF)
+
+This makes the retrieval more robust when the question uses different wording than the source report.
 
 ---
 
